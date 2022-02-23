@@ -77,3 +77,31 @@ export const likePost = async (req, res) => {
     const updatedPost = await PostMessage.findByIdAndUpdate(id, post, { new: true });
     res.json(updatedPost);
 }
+
+export const postComment = async (req, res) => {
+    const { id } = req.params;
+    const { user, message } = req.body;
+    const post = await PostMessage.findById(id);
+    const commentId = new mongoose.Types.ObjectId();
+    let data = {
+        id: commentId.valueOf(),
+        user: user,
+        message: message,
+    }
+    post.comments.push(data);
+    const updatedPost = await PostMessage.findByIdAndUpdate(id, post, { new: true });
+    res.status(200).json(updatedPost);
+}
+
+export const deleteComment = async (req, res) => {
+    const { id } = req.params;
+    const { commentId } = req.body;
+    const post = await PostMessage.findById(id);
+    let filterComments = [];
+    post.comments.map((comment) => {
+        if (comment?.id !== commentId) filterComments.push(comment);
+    })
+    post.comments = filterComments;
+    const updatedPost = await PostMessage.findByIdAndUpdate(id, post, { new: true });
+    res.status(200).json(updatedPost);
+}
