@@ -4,7 +4,7 @@ import PostMessage from "../models/postMessage.js";
 export const getPost = async (req, res) => {
     const { page } = req.query;
     try {
-        const Limit = 6;
+        const Limit = 9;
         const startingIndex = (Number(page) - 1) * Limit;
         const total = await PostMessage.countDocuments({});
         const numberOfPages = Math.ceil(total / Limit);
@@ -80,15 +80,8 @@ export const likePost = async (req, res) => {
 
 export const postComment = async (req, res) => {
     const { id } = req.params;
-    const { user, message } = req.body;
     const post = await PostMessage.findById(id);
-    const commentId = new mongoose.Types.ObjectId();
-    let data = {
-        id: commentId.valueOf(),
-        user: user,
-        message: message,
-    }
-    post.comments.push(data);
+    post.comments.push(req.body);
     const updatedPost = await PostMessage.findByIdAndUpdate(id, post, { new: true });
     res.status(200).json(updatedPost);
 }
